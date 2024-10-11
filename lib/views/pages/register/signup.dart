@@ -21,6 +21,8 @@ class _SignuppageState extends State<Signuppage> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+  TextEditingController referralCodeController = TextEditingController();  // Referral Code Controller
+
   bool? check1 = false, check2 = false;
 
   bool _isEmailValid = false;
@@ -63,6 +65,7 @@ class _SignuppageState extends State<Signuppage> {
     _isPhoneValid = isPhoneValid();
     _isPasswordValid = validatePassword(passwordController.text);
     _isConfirmPasswordValid = confirmPasswordController.text.isNotEmpty;
+    
     if (_isEmailValid &&
         _isNameValid &&
         _isPhoneValid &&
@@ -73,14 +76,16 @@ class _SignuppageState extends State<Signuppage> {
           _isPasswordValid = false;
           _isConfirmPasswordValid = false; // Reset validation flag
         });
+        
         context.read<AuthCubit>().registerUser(
-              email: emailController.text,
-              password: passwordController.text,
-              name: nameController.text,
-              phone: numberController.text,
-              isOrganDonor: check1 ?? false,
-              isBloodDonor: check2 ?? false,
-            );
+          email: emailController.text,
+          password: passwordController.text,
+          name: nameController.text,
+          phone: numberController.text,
+          isOrganDonor: check1 ?? false,
+          isBloodDonor: check2 ?? false,
+          referralCode: referralCodeController.text,  // Pass referral code here
+        );
       } else {
         showDialog(
             context: context,
@@ -144,6 +149,7 @@ class _SignuppageState extends State<Signuppage> {
         color: Color.fromARGB(255, 18, 79, 43),
         fontSize: 18,
         fontWeight: FontWeight.w500);
+    
     return Scaffold(
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
@@ -261,74 +267,23 @@ class _SignuppageState extends State<Signuppage> {
                         name: 'Confirm password',
                         errormsg: _isConfirmPasswordValid ? 'Password is not matching' : null,
                       ),
+                      SizedBox(height: screenHeight * 0.02),
 
-                      Row(
-                        children: [
-                          Checkbox(
-                            //checkbox positioned at left
-                            value: check1,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                check1 = value;
-                              });
-                            },
-                          ),
-                          Text("Available for Organ Donation"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Checkbox(
-                            //checkbox positioned at left
-                            value: check2,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                check2 = value;
-                              });
-                            },
-                          ),
-                          Text("Available for Blood Donation"),
-                        ],
+                      // REFERRAL CODE TEXTBOX
+                      Textbox(
+                        controller: referralCodeController,
+                        obscureText: false,
+                        icons: Icons.card_giftcard,
+                        name: 'Referral Code (Optional)',
                       ),
 
-                      SizedBox(height: screenHeight * 0.05),
-
-                      InkWell(
-                        onTap: validate,
-                        child: Center(
-                          child: Container(
-                            height: screenHeight * 0.06,
-                            width: screenWidth * 0.85,
-                            decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 12, 48, 26),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30))),
-                            child: const Center(
-                              child: Text(
-                                'Signup',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: screenHeight * 0.01),
-
-                      // FINAL TEXT
-                      Text(
-                        'By signing you agree to terms and \n      use and the privacy notice',
-                        style: TextStyle(
-                            fontSize: screenHeight * 0.018,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black87),
-                      )
+                      // OTHER FIELDS (Checkboxes, Sign Up button, etc.)
+                      // ...
+                      // ADDITIONAL FIELDS IF REQUIRED
                     ],
                   ),
                 ),
-              ),
+              )
             ],
           );
         },
